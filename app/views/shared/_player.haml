@@ -1,0 +1,22 @@
+.player{:id => "player_" + player.username}
+	-if player == current_user
+		%strong.player_name=player.username
+	-else
+		.player_name=player.username	
+	.player_status{:class => @game.current_player == player ? "card_czar" : (player.ready? ? (player.pass ? "player_pass" : "player_ready") : "player_not_ready")}
+		-if @game.current_player == player
+			card czar
+		-else
+			-if player.ready?
+				-if player.pass
+					pass
+				-else
+					ready
+			-else
+				not ready
+	
+	.player_score
+		=player.score
+	-if current_user == @game.creator && player != current_user
+		.btn.btn-warning.skip_button{:player_id => player.id} skip
+		.btn.btn-danger.kick_button{:player_id => player.id} kick

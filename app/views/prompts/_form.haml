@@ -1,0 +1,39 @@
+%h4 New prompt:
+%form#new_prompt_form{:target => card_pack_prompts_path(@card_pack)}
+	%label{:for => "text"} Text: 
+	%br
+	%input{:type => "text", :id => "text", :name=>"prompt[text]"}
+	%br
+	.hint Blank slots should be represented by four underscores
+	%label{:for => "blanks"} Number of blank slots: 
+	%br
+	%input{:type => "text", :id=>"blanks", :name=>"prompt[blanks]"}
+	%br
+	%br
+	%input{:type=>"submit"}
+:javascript
+	$("#new_prompt_form").on("submit", function(e){
+		e.preventDefault();
+		$.ajax({
+			url : $(this).attr("target"),
+			data : $(this).serialize(),
+			method : "POST",
+			success : function(data){
+				data = JSON.parse(data);
+				if(data.prompt)
+				{
+					softNotice("Prompt created");
+				}
+				else
+				{
+					var message = "The following errors occured: ";
+					var errors = [];
+					if(data.errors.prompt)
+						errors.push(data.errors.prompt[0]);
+					if(data.errors.type)
+						errors.push(data.errors.type[0]);
+					errorBox.show(message + errors.join(", "));
+				}
+			}
+		});
+	});

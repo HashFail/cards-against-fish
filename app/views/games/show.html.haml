@@ -1,0 +1,67 @@
+= subscribe_to @game.url
+= render :partial => "/shared/games"
+%div
+	#prompt
+		.prompt_text
+			=@game.current_prompt.text
+		.card_pack_name
+			=@game.current_prompt.card_pack.name
+
+	-if current_user == @game.current_player || @game.ready?
+		#user_ready_cards{:style=>"display:none;"}
+	-else
+		#user_ready_cards
+			-for i in 1..@game.current_prompt.blanks
+				.card
+	-if @game.ready?
+		#card_submissions
+			=render :partial => "/shared/show_cards", :locals => {:game => @game}
+	-else
+		#card_submissions{:style=>"display:none;"}
+
+	-if current_user == @game.current_player
+		#submit_cards_button.btn.btn-primary{:style=>"display:none;"} submit
+		-if @game.ready?
+			#accept_card_button.btn.btn-primary submit
+		-else
+			#accept_card_button.btn.btn-primary{:style=>"display:none;"} submit
+	-else
+		-if @game.ready?
+			#submit_cards_button.btn.btn-primary{:style=>"display:none;"} submit
+		-else
+			#submit_cards_button.btn.btn-primary submit
+		#accept_card_button.btn.btn-primary{:style=>"display:none;"} submit
+#user_cards
+	=render :partial => "/shared/user_cards"
+%div
+	#players
+		-@game.players.each do |player|
+			.player{:id => "player_" + player.username}
+				-if player == current_user
+					%strong.player_name=player.username
+				-else
+					.player_name=player.username	
+				.player_status{:class => @game.current_player == player ? "card_czar" : (player.ready? ? (player.pass ? "player_pass" : "player_ready") : "player_not_ready")}
+					-if @game.current_player == player
+						card czar
+					-else
+						-if player.ready?
+							-if player.pass
+								pass
+							-else
+								ready
+						-else
+							not ready
+				
+				.player_score
+					=player.score
+				-if current_user == @game.creator && player != current_user
+					.btn.btn-warning.skip_button{:player_id => player.id} skip
+					-if @game.player_kicked?(player)
+						.btn.btn-danger.kick_button{:player_id => player.id} ban
+					-else
+						.btn.btn-danger.kick_button{:player_id => player.id} kick
+	#chat_log
+		#chat
+		%input#chat_input
+#pass_button.btn.btn-primary pass

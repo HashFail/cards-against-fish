@@ -1,0 +1,23 @@
+.popup{
+	width:100%;
+	display:none;
+	text-align:center;
+	position:absolute;
+	margin:auto;
+	z-index:10001;
+}
+
+#soft_popup_container{
+	width:100%;
+	text-align:center;
+	position:fixed;
+	margin:auto;
+	bottom:20px;
+	z-index:10001;
+}
+
+.soft_popup{
+	max-width:75%;
+	margin:auto;
+	margin-top:20px;
+}

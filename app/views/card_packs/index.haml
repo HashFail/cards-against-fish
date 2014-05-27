@@ -1,0 +1,9 @@
+-CardPack.all.sort{|a,b| a.name <=> b.name}.each do |card_pack|
+	=link_to card_pack.name, card_pack_path(card_pack), :class => "card_pack"
+	-unless card_pack.votes.count == 0
+		.popularity
+			Popularity: 
+			=card_pack.popularity
+			\%.
+		.popularity_explanation
+			#{card_pack.up_vote_count} upvotes, #{card_pack.down_vote_count} downvotes. 

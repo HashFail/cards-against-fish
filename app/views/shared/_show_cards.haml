@@ -1,0 +1,8 @@
+-users = game.players.dup
+-while users.count > 0
+	-user = users.delete_at(rand(users.count).to_i)
+	-if user != game.current_player
+		.card_group
+			-user.selected_cards.each do |card|
+				.card{:data=>{:card_id=>card.id}}
+					=card.print

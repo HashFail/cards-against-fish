@@ -1,0 +1,25 @@
+%h3
+	=@card_pack.name
+
+-unless @card_pack.user == current_user
+	%a.btn.btn-success#up_vote_button{:href=> "/card_packs/" + @card_pack.id.to_s + "/vote?up=true", :remote=>true} &#x25B2;
+	%a.btn.btn-danger#up_vote_button{:href=> "/card_packs/" + @card_pack.id.to_s + "/vote?up=false", :remote=>true} &#x25BC;
+
+-unless @card_pack.cards.count == 0
+	%h4 Cards
+	#cards_container
+		-@card_pack.cards.each do |card|
+			.card
+				=card.print
+
+-if @card_pack.user == current_user
+	=link_to "New card", "#{request.path}/cards/new"
+
+-unless @card_pack.prompts.count == 0
+	%h4 Prompts
+	#prompts_container
+		-@card_pack.prompts.each do |prompt|
+			.prompt
+				=prompt.text
+-if @card_pack.user == current_user
+	=link_to "New prompt", "#{request.path}/prompts/new"

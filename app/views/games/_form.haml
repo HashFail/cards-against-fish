@@ -1,0 +1,30 @@
+= form_tag("/games") do
+	.text-left{:style => "display:inline-block; width:400px;"}
+		.group
+			%label{:for => "game[name]"} Name: 
+			%input{:type => "text", :id => "game[name]", :name=>"game[name]"}
+		.group
+			%label{:for => "game[max_players]"} Max Players: 
+			%input{:type => "text", :id => "game[max_players]", :name=>"game[max_players]"}
+		.group
+			%label{:for => "game[max_score]"} Max Score: 
+			%input{:type => "text", :id => "game[max_score]", :name=>"game[max_score]"}
+		.group
+			%label{:for => "game[enable_password]"} Enable password:
+			%input{:type=>"checkbox", :id=>"game[enable_password]", :name=>"game[enable_password]", :value => "1"}
+		.group
+			%label{:for => "game[password]"} Password: 
+			%input{:type => "password", :id => "game[password]", :name=>"game[password]"}
+		.group
+			%label{:for => "game[all_blanks]"} All blanks: 
+			%input{:type => "checkbox", :id => "game[all_blanks]", :name=>"game[all_blanks]"}
+		.group
+			%label{:for => "game[blank_count]"} Number of Blank Cards: 
+			%input{:type => "text", :id => "game[blank_count]", :name=>"game[blank_count]"}
+		.group
+			%label{:for => "game[card_packs]"} Card packs: 
+			#card_packs_container
+				-CardPack.all.each do |card_pack|
+					%div
+						%input{:type => "checkbox", :name => "game[card_packs][#{card_pack.id}]", :value=>"#{card_pack.id}", :checked => (@game && @game.card_packs.include?(card_pack))}
+						=card_pack.name

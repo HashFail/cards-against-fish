@@ -1,0 +1,26 @@
+.card{:data=>{:card_id=>card.id}}
+	-unless card.blank?
+		.text
+			=card.print
+	-if !card.plain
+		%form.card_options
+			-if card.blank?
+				%input.blank_card_input{:type=>"text", :placeholder => "Enter an answer", :name => "text"}
+			-elsif card.verb?
+				%select.verb_tense{:name=>"tense"}
+					%option{:value=>"present_tense"} Present tense
+					%option{:value=>"present_participle"} Present participle
+					%option{:value=>"past_tense"} Past tense
+					%option{:value=>"past_participle"} Past participle
+				%select.verb_person{:name=>"person"}
+					%option{:value=>"first"} First
+					%option{:value=>"second"} Second
+					%option{:value=>"third"} Third
+				.btn.btn-primary.conjugate_button conjugate
+			-elsif card.noun?
+				.btn.btn-primary.noun_pluarilty_button pluralize
+				%input{:type=>"hidden", :name=>"plurality", :value=>"singular"}
+			%input{:type => "hidden", :name => "id", :value => card.id}
+	-unless card.blank?
+		.card_pack_name
+			=card.card_pack.name

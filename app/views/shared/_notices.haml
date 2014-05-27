@@ -1,0 +1,25 @@
+#error_container.popup
+	.message
+	.okay_button.btn.btn-danger Okay
+
+#notice_container.popup
+	.message
+	.okay_button.btn.btn-primary Okay
+
+#confirm_container.popup
+	.message
+	.okay_button.btn.btn-primary Okay
+	.cancel_button.btn.btn-default Cancel
+
+#wait_container.popup
+	.message
+
+#soft_popup_container
+
+-unless flash[:notice].nil? || flash[:notice].empty?
+	:javascript
+		$(document).ready(function(){softNotice("#{flash[:notice]}")});
+
+-unless flash[:error].nil? || flash[:error].empty?
+	:javascript
+		$(document).ready(function(){softError("#{flash[:error]}")});

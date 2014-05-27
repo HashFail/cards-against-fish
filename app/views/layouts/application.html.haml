@@ -1,0 +1,64 @@
+!!!
+%html
+	%head
+		- title = yield :title 
+		%title
+			Cards Against Fish
+			-unless title.empty?
+				=" - "
+				=title
+		= stylesheet_link_tag "application", :media => "all"
+		= javascript_include_tag "application"
+		= csrf_meta_tags
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	%body
+		#popups
+			= render :partial => "shared/notices"
+			#game_form.popup
+				.message
+					= render :partial => "/games/form"
+					%br
+				.okay_button.btn.btn-primary Okay
+				.cancel_button.btn.btn-default Cancel
+			= yield :popups
+		#main
+			.container
+				%nav#navbar.navbar.navbar-default{:role => "navigation"}
+					.container
+						.container-fluid
+							.navbar-header
+								%button.navbar-toggle{"data-target" => "#bs-example-navbar-collapse-1", "data-toggle" => "collapse", :type => "button"}
+									%span.sr-only
+									%span.icon-bar
+									%span.icon-bar
+									%span.icon-bar	
+								= link_to "Cards Against Fish", root_path, :class => "navbar-brand",:style => "font-size:1.4em"
+							#bs-example-navbar-collapse-1.collapse.navbar-collapse
+									
+								%ul.nav.navbar-nav.navbar-right{:style => "margin-right:0px;"}	
+									- if current_user
+										%li
+											= link_to "View Games", "/games"
+										%li
+											= link_to "Create Game", "#", :onclick => "gameForm.show(event);"
+										%li
+											= link_to "View cards", "/card_packs"
+										%li
+											%a{:style => "color:#333333"}
+												Signed in as
+												= current_user.username
+										%li
+											= link_to "Sign out", destroy_user_session_path, method: "DELETE", id: "sign_out", :class =>""
+									-else
+										%li
+											= link_to "About", "/about"
+										-unless request.path == "/users/sign_in" || request.path == "/users/sign_up"
+											%li
+												= link_to "Sign In", "/users/sign_in?after_login_path=" + CGI.escape(request.path)
+											%li
+												= link_to "Sign Up", "/users/sign_up?after_login_path=" + CGI.escape(request.path)
+			#content_container
+				.col-md-2
+				.col-md-8#mid_col
+					= yield
+				.col-md-2

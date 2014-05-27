@@ -1,0 +1,166 @@
+.game_container {
+	margin-bottom:20px;
+}
+
+.game_container > * {
+	margin-top: 0px;
+}
+
+.game_name {
+	float:left;
+}
+
+.game_info {
+	float:left;
+	margin-left:20px;
+}
+
+.join_button {
+	float:right;
+}
+
+.group > *{
+	width:50%;
+	margin-left:-4px;
+	vertical-align:text-top;
+}
+.group > :first-child {
+	text-align:right;
+	padding-right:10px;
+}
+
+.group{
+	vertical-align:text-top;
+}
+
+.card, #prompt, .prompt {
+	-moz-border-radius:15px;
+	-webkit-border-radius:15px;
+	padding:10px;
+	border-radius:15px;
+	border:thin solid black;
+	width:130px;
+	min-height:140px;
+	display:inline-block;
+	margin-right:5px;
+	vertical-align:text-top
+}
+
+.card > * {
+	max-width:100%;
+}
+
+.card > * > * {
+	max-width:100%;
+}
+
+.card > form > * {
+	display:block;
+	margin-bottom:5px;
+}
+
+#card_packs_container {
+	display:inline-block; border:1px inset gray; padding:1px; height:36px; overflow-y:scroll;
+}
+
+#card_packs_container > * {
+	border-bottom:thin solid gray;
+}
+
+#card_packs_container > *:last-child {
+	border-bottom:none;
+}
+
+.player_ready {
+	color:green;
+}
+
+.player_not_ready {
+	color:red;
+}
+
+.player_pass, .card_czar {
+	color:gray;
+}
+
+.selected_card, .selected_card.card_group {
+	border-color:cornflowerblue;
+	border-width:2px;
+}
+
+#user_ready_cards, #card_submissions {
+	display:inline-block;
+	margin-left:20%;
+}
+
+#prompt, .prompt {
+	background-color:black;
+	color:white;
+}
+
+.card_group {
+	-moz-border-radius:15px;
+	-webkit-border-radius:15px;
+	padding:10px;
+	border-radius:15px;
+	border:thin solid black;
+}
+
+.player_name, .player_status {
+	display:inline-block;
+}
+
+.player {
+	position:relative;
+}
+
+.kick_button, .skip_button {
+	position:absolute;
+	top:0px;
+}
+
+.kick_button {
+	right:0px;
+}
+
+.skip_button {
+	right:55px;
+}
+
+#pass_button {
+	margin-top:5px;
+}
+
+#players {
+	display:inline-block;
+	width:48%;
+	vertical-align:text-top;
+	margin-right:2%;
+}
+#chat_log {
+	display:inline-block;
+	width:50%;
+	margin-left:-4px;
+	vertical-align:text-top;
+}
+
+#chat_input {
+	display:block;
+	width:100%;
+}
+
+#chat {
+	display:block;
+	width:100%;
+	overflow:scroll;
+	border:1px solid black;
+	height:50px;
+}
+
+.message {
+	
+}
+
+.card_pack_name {
+	color:grey;
+}

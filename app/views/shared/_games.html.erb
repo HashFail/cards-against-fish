@@ -1,0 +1,355 @@
+<script>
+	Game = {};
+	Game.username = "<%=current_user.username%>"
+	Game.cardCzar = "<%=@game.current_player.username%>"
+	Game.initializeWinnerSelection = function() {
+		$("#accept_card_button").show();
+		$("#card_submissions .card_group").on("click", function(){
+			$(".card_group.selected_card").removeClass("selected_card");
+			$(this).addClass("selected_card");
+		});	
+	}
+	GameCallbacks = {};
+	GameCallbacks.allPass = function(){
+		softNotice("No one wins the round; all players passed.");
+		if(<%=current_user == @game.creator%>)
+		{
+			window.setTimeout(function(){
+				$.ajax({
+					url : "<%=request.url%>/start_next_round",
+					method : "POST"
+				});
+			}, 10000);
+		}
+	};
+	GameCallbacks.gameEnded = function(e){
+		softNotice("The game has ended.");
+		window.setTimeout(function(){
+			window.location.href = "/games";
+		}, 5000);
+	};
+	GameCallbacks.startNextRound = function(e){
+		Game.cardCzar = e.cardCzar;
+		$("#accept_card_button").hide();
+		$("#card_submissions").hide().empty();
+		if(Game.cardCzar == Game.username)
+		{
+			$("#submit_cards_button").hide();
+			$("#user_ready_cards").hide();
+		}
+		else
+		{
+			$("#submit_cards_button").show();	
+			var div = $("#user_ready_cards");
+			div.show();
+			for(var i = 0; i < e.prompt.blanks; i++)
+			{
+				div.append($(document.createElement("div")).addClass("card").on("click", addCard));
+			}
+		}
+		$("#prompt .prompt_text").html(e.prompt.text);
+		$("#prompt .card_pack_name").html(e.prompt.cardPack);
+		$.ajax({
+			method : "POST",
+			url : "<%=request.path%>/get_cards",
+			success : function(data){
+				$("#user_cards").html(data);
+				$("#user_cards .card").on("click", selectCard);
+			}
+		});
+		$(".player").each(function(){
+			var t = $(this);
+			console.log(t.attr("id"));
+			if(t.attr("id") == "player_" + Game.cardCzar)
+			{
+				console.log("card czar");
+				var status_div = t.children(".player_status");
+				status_div.removeClass("player_ready player_pass card_czar player_not_ready");
+				status_div.html("card czar");
+				status_div.addClass("card_czar");
+			}
+			else
+			{
+				console.log("not card czar");
+				var status_div = t.children(".player_status");
+				status_div.removeClass("player_ready player_pass card_czar player_not_ready");
+				status_div.html("not ready");
+				status_div.addClass("player_not_ready");
+			}
+		});
+	};
+	GameCallbacks.playerConnect = function(e) {
+		var div = $(document.createElement("div"));
+		div.attr("id", "player_" + e.player);
+		div.addClass("player");
+		var name_div = $(document.createElement("div"));
+		name_div.addClass("player_name");
+		name_div.html(e.player);
+		var status_div = $(document.createElement("div"));
+		status_div.addClass("player_not_ready player_status");
+		status_div.html("not ready");
+		var score_div = $(document.createElement("div"));
+		score_div.addClass("player_score");
+		score_div.html(e.score);
+		div.append(name_div);
+		div.append(document.createTextNode("\n"));
+		div.append(status_div);
+		div.append(score_div);
+		if(<%=current_user == @game.creator%>)
+		{
+			div.append($(document.createElement("div")).addClass("skip_button btn btn-warning").on("click", skipPlayer).html("skip").attr("player_id", e.player_id));
+			if(e.kicked)
+			{
+				div.append($(document.createElement("div")).addClass("kick_button btn btn-danger").on("click", kickPlayer).html("ban").attr("player_id", e.player_id));
+			}
+			else
+			{
+				div.append($(document.createElement("div")).addClass("kick_button btn btn-danger").on("click", kickPlayer).html("kick").attr("player_id", e.player_id));
+			}
+		}
+		$("#players").append(div);
+		softNotice(e.player + " has entered the game.");
+	};
+	GameCallbacks.changeStatus = function(e) {
+		var status_div = $("#player_" + e.player).children(".player_status");
+		status_div.removeClass("player_ready player_not_ready player_pass");
+		status_div.html(e.status);
+		status_div.addClass("player_" + e.status.replace(" ", "_"));
+	};
+	GameCallbacks.playerLeave = function(e) {
+		$("#players #player_" + e.player).remove();
+		softNotice(e.player + " has left the game.");
+	};
+	GameCallbacks.showCards = function(e) {
+		$("#user_ready_cards").hide().empty();
+		$("#card_submissions").show().html(e.html);
+		if(Game.username == Game.cardCzar)
+		{
+			Game.initializeWinnerSelection();
+		}
+	};
+	GameCallbacks.selectWinner = function(e) {
+		softNotice(e.winner + " wins the hand.");
+		$("#player_" + e.winner + " .player_score").html(e.score);
+		if(<%=current_user == @game.creator%>)
+		{
+			window.setTimeout(function(){
+				$.ajax({
+					url : "<%=request.url%>/start_next_round",
+					method : "POST"
+				});
+			}, 10000);
+		}
+	};
+	GameCallbacks.skipPlayer = function(e) {
+		softNotice(e.player + " was skipped.");
+		var status_div = $("#player_" + e.player).children("player_status");
+		status_div.removeClass("player_ready player_not_ready");
+		status_div.html("pass");
+		status_div.addClass("pass");
+	};
+	GameCallbacks.kickPlayer = function(e) {
+		if(e.player == Game.username)
+		{
+			window.location.href =  "/games/get_kicked";
+		}
+		else
+		{
+			$("#players #player_" + e.player).remove();
+			softNotice(e.player + " was kicked.");	
+		}
+	};
+	GameCallbacks.banPlayer = function(e) {
+		if(e.player == Game.username)
+		{
+			window.location.href =  "/games/get_banned";
+		}
+		else
+		{
+			$("#players #player_" + e.player).remove();
+			softNotice(e.player + " was banned.");	
+		}
+	};
+	GameCallbacks.newMessage = function(e) {
+		$("#chat").append($(document.createElement("div")).addClass("message").html(e.message));
+	};
+	PrivatePub.subscribe("<%=@game.url%>", function(data, channel) {	
+		if(data.gameEvent)
+		{
+			//appendGameEvent(data.gameEvent);
+		}
+		if(data.notice)
+		{
+			softNotice(data.notice);
+		}
+		GameCallbacks[data.method](data.event);
+	});
+	$(document).ready(function(){
+		conjugate = function(){
+			var t = $(this);
+			var p = $(this).parent();
+			$.ajax({
+				data : p.serialize(), 
+				url : "/cards/" + p.parent().data("card-id") + "/preview", 
+				method : "POST", 
+				success : function(data){
+					var data = JSON.parse(data);
+					p.siblings(".text").html(data.word);
+				}
+			});
+		}
+		$(".conjugate_button").on("click", conjugate);
+		changePlurality = function(){
+			var t = $(this);
+			var p = $(this).parent();
+			if(t.siblings("[name='plurality']").val() == "singular")
+			{
+				t.siblings("input").val("plural");
+				t.html("singularize");
+			}
+			else
+			{
+				t.siblings("[name='plurality']").val("singular");
+				t.html("pluralize");
+			}
+			$.ajax({
+				data : p.serialize(), 
+				url : "/cards/" + p.parent().data("card-id") + "/preview", 
+				method : "POST", 
+				success : function(data){
+					var data = JSON.parse(data);
+					p.siblings(".text").html(data.word);
+				}
+			});
+		}
+		$(".noun_pluarilty_button").on("click", changePlurality);
+		selectCard = function(){
+			var t = $(this);
+			if(!t.data("selected"))
+			{
+				$(".card.selected_card").removeClass("selected_card");
+				t.addClass("selected_card");
+			}
+		};
+		$("#user_cards .card").on("click", selectCard);
+		addCard = function(){
+			var selected = $(".selected_card");
+			if(selected.length > 0 && !selected.data("selected"))
+			{
+				var t = $(this);
+				var oldId = t.children("form").children("[name='id']").val();
+				$(".card[data-card-id='" + oldId + "']").data("selected", false).show();
+				t.html(selected.clone(true).children());
+				var form = t.children("form");
+				var tense = form.children(".verb_tense");
+				if(tense.length > 0)
+				{
+					var selectedForm = selected.children("form");
+					tense.val(selectedForm.children(".verb_tense").val());
+					form.children(".verb_person").val(selectedForm.children(".verb_person").val());
+				}
+				t.data("card-id", selected.data("card-id"));
+				selected.removeClass("selected_card");
+				selected.data("selected", true);
+				selected.hide();
+			}
+		};
+		$("#user_ready_cards .card").on("click", addCard);
+		$("#submit_cards_button").on("click", function(){
+			var tData = {};
+			tData.cards = {};
+			$("#user_ready_cards .card").each(function(){
+				var dataArr = $(this).children("form").serializeArray();
+				var data = {};
+				$.each(dataArr, function(){
+					data[this.name] = this.value;
+				});
+				tData.cards[data.id] = data;
+			});
+			$.ajax({
+				url : "<%=request.path%>/select_cards",
+				data : tData,
+				method : "POST",
+				success : function(data){
+					if(data != "success")
+					{
+						softError("Error submiting cards.");
+					}
+				}
+			});
+		});
+		$("#accept_card_button").on("click", function() {
+			var tData = {cards : {}};
+			$(".card_group.selected_card .card").each(function(){
+				var id = $(this).data("card-id");
+				tData.cards[id] = id;
+			});
+			$.ajax({
+				method : "POST", 
+				url : "<%=request.url%>/select_winner", 
+				data : tData, 
+				success : function(data){
+					if(data != "success")
+					{
+						softNotice("An error occurred.");
+					}
+				}
+			});
+		});
+		if(<%=@game.ready? && @game.current_player == current_user%>)
+		{
+			Game.initializeWinnerSelection();
+		}
+		if(<%=@game.creator == current_user%>)
+		{
+			skipPlayer = function(){
+				$.ajax({
+					data : { player : $(this).attr("player_id")},
+					url : "<%=request.url%>/skip_player",
+					method : "POST"
+				});
+			};
+			kickPlayer = function(){
+				$.ajax({
+					data : { player : $(this).attr("player_id")},
+					url : "<%=request.url%>/kick_player",
+					method : "POST"
+				});
+			};
+			$(".kick_button").on("click", kickPlayer)
+			$(".skip_button").on("click", skipPlayer);
+		}
+		$("#pass_button").on("click", function(){$.ajax({url : "<%=request.url%>/toggle_pass", method : "POST"});});
+		$("#chat_input").on("keydown", function(e){
+			if((e.which || e.keyCode) == 13)
+			{
+				$.ajax({url : "<%=request.url%>/new_message", method : "POST", data : {message : $(this).val()}});
+				$(this).val("");
+			}
+		});
+
+	});
+	$(window).on("click", function(e){
+		if(e.target.href)
+		{
+			e.preventDefault();
+			var message;
+			if(<%= @game.creator == current_user %>)
+			{
+				message = "The game will end if you leave now. Are you sure?"
+			}
+			else
+			{
+				message = "You will be removed from the game if you leave. Are you sure?"
+			}
+			confirmBox.show(message, function(){
+				$.post("<%=request.path%>/remote_leave");
+				window.location.href = e.target.href;
+			});
+		}
+	});
+	window.onbeforeunload = function(){
+		$.post("<%=request.path%>/unsubscribe")
+	};
+	$.post("<%=request.path%>/subscribe");
+</script>

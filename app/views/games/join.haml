@@ -1,0 +1,4 @@
+= form_tag @game.url + "/join", :class => "text-center" do
+	%label{:for=>"password"} This game requires a password: 
+	%br
+	%input{:id=> "password", :name => "password", :type => "password"}
